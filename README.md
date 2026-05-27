@@ -96,11 +96,11 @@ The main conceptual components are:
 
 The electromagnetic part of the code advances Maxwell's equations in the form
 
-$$
+```math
 \mu_0\frac{\partial \mathbf{H}}{\partial t}
 =
 -\nabla \times \mathbf{E},
-$$
+```
 
 $$
 \epsilon_0\frac{\partial \mathbf{E}}{\partial t}
