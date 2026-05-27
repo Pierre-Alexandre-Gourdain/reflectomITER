@@ -107,7 +107,7 @@ The electromagnetic part of the code advances Maxwell's equations in the form
 =
 \nabla \times \mathbf{H}
 ,
-```math
+```
 
 or with the normalized equivalents when `init.normalize_units = 1`.
 
@@ -147,7 +147,7 @@ When current-density coupling is active, Ampere's law contains the current sourc
 together with charge conservation
 ```math
 \partial_t\rho+\nabla\cdot\mathbf J=0.
-``
+```
 The current field `J` can receive contributions from:
 
 1. user-defined electromagnetic sources,
