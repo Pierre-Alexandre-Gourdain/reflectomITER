@@ -80,22 +80,29 @@ find_package(OpenMP REQUIRED)
 # ------------------------------------------------------------
 if(USE_IMAS)
 
+    set(IMASH_BUILD_EXECUTABLE OFF CACHE BOOL "" FORCE)
+
     include(FetchContent)
 
     set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
-
-    set(IMASH_BUILD_EXECUTABLE OFF CACHE BOOL "" FORCE)
 
     FetchContent_Declare(
         IMASH
         GIT_REPOSITORY https://github.com/Pierre-Alexandre-Gourdain/IMASH.git
         GIT_TAG main
+        FIND_PACKAGE_ARGS  # try find_package(IMASH) first; only fetch if not found
     )
 
     FetchContent_MakeAvailable(IMASH)
 
+    # If find_package succeeded, the namespaced target IMASH::IMASH exists;
+    # alias it so target_link_libraries(... IMASH) below works in either case.
+    if(NOT TARGET IMASH AND TARGET IMASH::IMASH)
+        add_library(IMASH ALIAS IMASH::IMASH)
+    endif()
+
     if(NOT TARGET IMASH)
-        message(FATAL_ERROR "IMASH was fetched, but target IMASH was not created.")
+        message(FATAL_ERROR "IMASH neither found nor fetched.")
     endif()
 
 endif()
@@ -157,6 +164,12 @@ endif()
 if(USE_IMAS)
     target_compile_definitions(reflectomITER PRIVATE USE_IMAS=1)
 endif()
+
+# ------------------------------------------------------------
+# Install
+# ------------------------------------------------------------
+include(GNUInstallDirs)
+install(TARGETS reflectomITER RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # ------------------------------------------------------------
 # Doxygen documentation
