@@ -59,7 +59,7 @@ init.number_of_outputs = 15
 # ============================================================
 init.use_plasma = 1
 init.use_e_cleaner = 1
-init.use_h_cleaner = 1
+init.use_h_cleaner = 0
 
 # ============================================================
 # Output

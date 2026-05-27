@@ -6,9 +6,9 @@ option(BUILD_DOCS "Build Doxygen documentation" ON)
 
 
 if(USE_CUDA)
-    project(reflectomITER LANGUAGES C CXX CUDA)
+    project(reflectomITER LANGUAGES C CXX CUDA Fortran)
 else()
-    project(reflectomITER LANGUAGES C CXX)
+    project(reflectomITER LANGUAGES C CXX Fortran)
 endif()
 
 # ------------------------------------------------------------
@@ -36,10 +36,6 @@ add_compile_definitions(FD_ORDER=2)
 # ------------------------------------------------------------
 # AMReX configuration
 # ------------------------------------------------------------
-set(AMReX_DIR
-    "$ENV{HOME}/amrex_GPU/installdir/lib/cmake/AMReX"
-    CACHE PATH "Path to AMReX CMake config"
-)
 
 set(AMREX_USE_MPI ON CACHE BOOL "" FORCE)
 
@@ -49,12 +45,35 @@ else()
     set(AMREX_USE_CUDA OFF CACHE BOOL "" FORCE)
 endif()
 
-find_package(AMReX REQUIRED)
+# First try to find AMReX normally:
+#   - from CMAKE_PREFIX_PATH
+#   - from AMReX_DIR if supplied on the command line
+#   - from system/module paths
+find_package(AMReX QUIET)
+
+# If not found, fall back to the default local GPU installation
+if(NOT AMReX_FOUND)
+    message(STATUS "AMReX not found in default CMake paths.")
+    message(STATUS "Falling back to $ENV{HOME}/amrex_GPU/installdir/lib/cmake/AMReX")
+
+    set(AMReX_DIR
+        "$ENV{HOME}/amrex_GPU/installdir/lib/cmake/AMReX"
+        CACHE PATH "Path to AMReX CMake config"
+        FORCE
+    )
+
+    find_package(AMReX REQUIRED)
+endif()
 
 # ------------------------------------------------------------
 # MPI
 # ------------------------------------------------------------
 find_package(MPI REQUIRED)
+
+# ------------------------------------------------------------
+# OpenMP
+# ------------------------------------------------------------
+find_package(OpenMP REQUIRED)
 
 # ------------------------------------------------------------
 # IMASH (optional)
@@ -105,7 +124,7 @@ if(USE_CUDA AND AMReX_CUDA)
     )
 
     target_compile_options(reflectomITER PRIVATE
-        $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda --expt-relaxed-constexpr>
+        $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda --expt-relaxed-constexpr -Xcompiler=-fopenmp>
     )
 
     set_source_files_properties(
@@ -128,6 +147,7 @@ endif()
 target_link_libraries(reflectomITER PRIVATE
     AMReX::amrex
     MPI::MPI_CXX
+	OpenMP::OpenMP_CXX
 )
 
 if(USE_IMAS)
