@@ -1,0 +1,87 @@
+# ============================================================
+# IMASH / equilibrium loading
+# ============================================================
+imas.use_imas = 1
+imas.imas_path = /home/pag/iter/134174/117
+imas.imas_time = 60.0
+
+imas.load_core = 1
+imas.load_bfield = 1
+imas.load_edge_on_grid = 1
+imas.load_wall = 0
+imas.smooth_rho = 0.01
+imas.smooth_theta = 0.2
+
+# Optional merge controls, if present in Config
+imas.merge_density = 1
+imas.merge_temperature = 1
+
+# ============================================================
+# Domain generation from IMASH data
+# ============================================================
+imas.toroidal_phi_deg = 0
+imas.points_per_wavelength = 18.0
+imas.pad_R = 0.0
+imas.pad_Z = 0.0
+imas.reference_frequency = -1.0
+
+# Optional explicit bounds
+imas.R_min = 6.0
+imas.R_max = 8.6
+imas.Z_min = 0.0
+imas.Z_max = 1.0
+
+# ============================================================
+# Grid / solver
+# ============================================================
+#init.max_grid_size = 64
+init.nghost = 1
+init.normalize_units = 1
+
+# ============================================================
+# PML Setup
+# ============================================================
+init.pml_thickness = 80
+init.pml_sigma = 1500
+init.plasma_sigma = 200
+init.use_pml = 1
+
+# ============================================================
+# Time stepping
+# ============================================================
+init.cfl = 0.45
+init.final_time = 15e-9
+init.max_step = -1
+init.number_of_outputs = 15
+
+# ============================================================
+# Feature switches
+# ============================================================
+init.use_plasma = 1
+init.use_e_cleaner = 1
+init.use_h_cleaner = 1
+
+# ============================================================
+# Output
+# ============================================================
+init.output_dir = "/mnt/c/Users/Pierre Gourdain/shared/data"
+
+# ============================================================
+# Sources
+# ============================================================
+init.nsources = 1
+
+source.1.enabled = 1
+source.1.type = J
+source.1.position = 8.5 0.0 0.5
+source.1.direction = 0.0 1.0 0.0
+source.1.shape = 0.05 1.0 1.0
+source.1.amplitude = 1e-3
+source.1.frequency = 3.7e9
+source.1.phase = 0.0
+source.1.width = .05
+source.1.profile = gaussian
+source.1.supergaussian_order = 4.0
+source.1.t_on = 0.0
+source.1.t_off = 33e-9
+source.1.t_rise = .1e-9

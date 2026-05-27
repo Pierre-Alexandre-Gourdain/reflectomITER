@@ -1,0 +1,68 @@
+# ============================================================
+# Common runtime / solver
+# ============================================================
+#init.max_grid_size = 64
+init.nghost = 1
+init.normalize_units = 0
+
+init.cfl = 0.9
+init.final_time = 2.5
+init.max_step = -1
+init.number_of_outputs = 10
+
+init.use_plasma = 1
+init.use_e_cleaner = 1
+init.use_h_cleaner = 0
+
+init.output_dir = "/mnt/c/Users/Pierre Gourdain/shared/data"
+
+# ============================================================
+# PML Setup
+# ============================================================
+init.use_pml = 1
+init.pml_thickness = 30
+init.pml_sigma = 50
+
+# ============================================================
+# Manual input domain
+# ============================================================
+input.scale = 10
+input.n_cell = 32 1 32
+
+input.prob_lo = -1.0 -1e-2 -1.0
+input.prob_hi =  1.0  1e-2  1.0
+
+input.is_periodic = 0 1 0
+
+# ============================================================
+# IMAS disabled
+# ============================================================
+imas.use_imas = 0
+
+## ============================================================
+# Sources
+# ============================================================
+init.nsources = 2
+
+source.1.enabled = 1
+source.1.type = E
+
+# Position in physical coordinates
+source.1.position = 0.75 0.0 0.0
+
+# Direction vector (must be nonzero)
+source.1.direction = 0.0 1.0 0.0
+
+# Gaussian/Supergaussian shape
+source.1.shape = 1.0 1.0 1.0
+
+# Temporal parameters
+source.1.amplitude = 1e-1
+source.1.frequency = 10  
+source.1.phase = 0.0
+
+# Spatial profile
+source.1.width = 0.02
+source.1.profile = supergaussian
+source.1.supergaussian_order = 2.0
+
