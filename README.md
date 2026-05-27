@@ -238,7 +238,7 @@ The code can apply divergence-cleaning corrections for electric and magnetic fie
 init.use_e_cleaner = 1
 init.use_h_cleaner = 0
 ```
-By default, the magnetic field cleaner is turned off since the FDTD algorithm converses
+By default, the magnetic field cleaner is turned off since the FDTD algorithm enforces
 ```math
 \nabla\cdot\mathbf H=0
 ```
