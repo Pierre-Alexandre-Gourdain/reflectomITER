@@ -96,18 +96,18 @@ The main conceptual components are:
 
 The electromagnetic part of the code advances Maxwell's equations in the form
 
-$$
+```math
 \mu_0\frac{\partial \mathbf{H}}{\partial t}
 =
 -\nabla \times \mathbf{E},
-$$
+```
 
-$$
+```math
 \epsilon_0\frac{\partial \mathbf{E}}{\partial t}
 =
 \nabla \times \mathbf{H}
 ,
-$$
+```math
 
 or with the normalized equivalents when `init.normalize_units = 1`.
 
@@ -139,15 +139,15 @@ is reached.  A value of `init.max_step = -1` disables the step-count limit.
 
 When current-density coupling is active, Ampere's law contains the current source term
 
-$$
+```math
 \epsilon_0\frac{\partial \mathbf{E}}{\partial t}
 =
 \nabla \times \mathbf{H}-\mathbf{J},
-$$
+```
 together with charge conservation
-$$
+```math
 \partial_t\rho+\nabla\cdot\mathbf J=0.
-$$
+``
 The current field `J` can receive contributions from:
 
 1. user-defined electromagnetic sources,
@@ -170,7 +170,7 @@ A `J` source is physically a current-density drive.  Direct `E` or `H` sources a
 
 The auxiliary differential equation (ADE) plasma model evolves an electron momentum-like response and accumulates a current into the electromagnetic solver.  Conceptually, the model follows a cold/warm electron-fluid response of the form
 
-$$
+```math
 \frac{d\mathbf{p}_e}{dt}
 =
 q_e
@@ -179,21 +179,21 @@ q_e
 \mathbf{p}_e \times \mathbf{\Omega}_e
 -
 \nu \mathbf{p}_e,
-$$
+```
 
 where 
 
-$$
+```math
 \mathbf {\Omega}_e=\frac{q_e\mathbf B}{m_e}
-$$
+```
 
 and a current contribution
 
-$$
+```math
 \mathbf{J}_e
 =
 \frac{q_e n_e}{m_e} \mathbf{p}_e.
-$$
+```
 Note that the current density equation above is always true, even if all quantities vary in space and time. In the implementation, the ADE plasma object stores fields such as electron density `ne`, temperature `Te`, collision frequency, conductivity/activity mask, background magnetic field `B`, and electron momentum `p`.  The ADE model reads the electromagnetic field and deposits the resulting plasma current into the coupled `EHJSolver`.
 
 The plasma model can be initialized in two ways:
@@ -239,9 +239,9 @@ init.use_e_cleaner = 1
 init.use_h_cleaner = 0
 ```
 By default, the magnetic field cleaner is turned off since the FDTD algorithm converses
-$$
+```math
 \nabla\cdot\mathbf H=0
-$$
+```
 Electric field cleaning is useful when numerical current deposition, sources, or boundary treatments introduce error in the discrete Gauss-law constraint.  Magnetic cleaning can be enabled for tests where numerical magnetic divergence error needs active control.
 
 ---
