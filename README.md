@@ -107,7 +107,7 @@ The electromagnetic part of the code advances Maxwell's equations in the form
 =
 \nabla \times \mathbf{H}
 ,
-```math
+```
 
 or with the normalized equivalents when `init.normalize_units = 1`.
 
