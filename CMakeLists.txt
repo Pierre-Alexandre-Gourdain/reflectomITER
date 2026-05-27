@@ -207,12 +207,12 @@ if(BUILD_DOCS)
             AMREX_SPACEDIM=3
         )
 
-        if(EXISTS "${CMAKE_SOURCE_DIR}/README.md")
-            set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
+        if(EXISTS "${CMAKE_SOURCE_DIR}/src/main_page.md")
+            set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/src/main_page.md")
 
             doxygen_add_docs(
                 docs
-                "${CMAKE_SOURCE_DIR}/README.md"
+                "${CMAKE_SOURCE_DIR}/src/main_page.md"
                 "${CMAKE_SOURCE_DIR}/include"
                 "${CMAKE_SOURCE_DIR}/src"
                 COMMENT "Generating Doxygen documentation"
