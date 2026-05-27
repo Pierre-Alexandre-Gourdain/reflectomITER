@@ -889,8 +889,8 @@ if(BUILD_DOCS)
             AMREX_SPACEDIM=3
         )
 
-        if(EXISTS "${CMAKE_SOURCE_DIR}/README.md")
-            set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
+        if(EXISTS "${CMAKE_SOURCE_DIR}/src/main_page.md")
+            set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/src/main_page.md")
         endif()
 
         doxygen_add_docs(
@@ -958,9 +958,9 @@ cmake_minimum_required(VERSION 3.25)
 option(USE_CUDA "Enable CUDA GPU support" OFF)
 
 if(USE_CUDA)
-    project(reflectomITER LANGUAGES C CXX CUDA)
+    project(reflectomITER LANGUAGES C CXX CUDA Fortran)
 else()
-    project(reflectomITER LANGUAGES C CXX)
+    project(reflectomITER LANGUAGES C CXX Fortran)
 endif()
 ```
 
