@@ -5,47 +5,49 @@ import shlex
 import subprocess
 from pathlib import Path
 
-_state = {
+
+CONFIG = {
+    "launcher": "mpirun",
+    "launcher_arguments": "-np 16",
+    "executable": "../build_iwrap/reflectomITER",
+
+    "input_template": "../inputs/input_IMAS.txt",
+    "generated_input": "../inputs/input_IMAS_gen.txt",
+
+    "working_directory": ".",
+    "log_file": "reflectomITER_iwrap_python.log",
+    "dry_run": False,
+
+    "overrides": {
+        "init.output_dir": "/home/pag/run_iwrap_test",
+        "init.max_step": "3000",
+        "init.final_time": "15e-9",
+        "init.cfl": "0.45",
+        "init.number_of_outputs": "5",
+        "source.1.frequency": "3.7e9",
+        "source.1.amplitude": "1e-3",
+    },
+}
+
+
+STATE = {
     "step": 0,
     "status": "created",
     "last_command": "",
     "last_return_code": None,
 }
 
-def _env_bool(name: str) -> bool:
-    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
-def _env_optional(name: str) -> str | None:
-    value = os.environ.get(name)
-    if value is None:
-        return None
-    value = value.strip()
-    return value if value else None
-    
-def _replace_or_append_parameter(lines: list[str], key: str, value: str) -> bool:
-    """
-    Replace a ParmParse-style assignment:
-
-        key = old_value
-
-    while preserving comments and unrelated lines.
-
-    Returns True if replacement happened, False otherwise.
-    """
-    prefix = f"{key}"
-
+def replace_or_append_parameter(lines: list[str], key: str, value: str) -> bool:
     for i, line in enumerate(lines):
         stripped = line.strip()
 
-        if not stripped or stripped.startswith("#"):
-            continue
-
-        if "=" not in line:
+        if not stripped or stripped.startswith("#") or "=" not in line:
             continue
 
         left, _right = line.split("=", 1)
 
-        if left.strip() == prefix:
+        if left.strip() == key:
             newline = "\n" if line.endswith("\n") else ""
             lines[i] = f"{key} = {value}{newline}"
             return True
@@ -54,53 +56,26 @@ def _replace_or_append_parameter(lines: list[str], key: str, value: str) -> bool
 
 
 def generate_input_file() -> str:
-    template_path = Path(
-        os.environ.get(
-            "REFLECTOMITER_INPUT_TEMPLATE",
-            "templates/input.reflectomITER.template",
-        )
-    )
-
-    output_input_path = Path(
-        os.environ.get(
-            "REFLECTOMITER_GENERATED_INPUT",
-            "generated/inputs.iwrap_reflectomITER",
-        )
-    )
+    template_path = Path(CONFIG["input_template"])
+    generated_path = Path(CONFIG["generated_input"])
 
     if not template_path.exists():
         raise FileNotFoundError(f"Input template not found: {template_path}")
 
-    output_input_path.parent.mkdir(parents=True, exist_ok=True)
+    generated_path.parent.mkdir(parents=True, exist_ok=True)
 
     lines = template_path.read_text(encoding="utf-8").splitlines(keepends=True)
 
-    source_index = os.environ.get("REFLECTOMITER_SOURCE_INDEX", "1").strip()
+    replaced = []
+    appended = []
 
-    mapping = {
-        "REFLECTOMITER_OUTPUT_DIR": "init.output_dir",
-        "REFLECTOMITER_MAX_STEP": "init.max_step",
-        "REFLECTOMITER_FINAL_TIME": "init.final_time",
-        "REFLECTOMITER_CFL": "init.cfl",
-        "REFLECTOMITER_NUMBER_OF_OUTPUTS": "init.number_of_outputs",
-        "REFLECTOMITER_SOURCE_FREQUENCY": f"source.{source_index}.frequency",
-        "REFLECTOMITER_SOURCE_AMPLITUDE": f"source.{source_index}.amplitude",
-    }
+    for key, value in CONFIG["overrides"].items():
+        value = str(value)
 
-    replaced: list[tuple[str, str]] = []
-    appended: list[tuple[str, str]] = []
-
-    for env_name, input_key in mapping.items():
-        value = _env_optional(env_name)
-        if value is None:
-            continue
-
-        did_replace = _replace_or_append_parameter(lines, input_key, value)
-
-        if did_replace:
-            replaced.append((input_key, value))
+        if replace_or_append_parameter(lines, key, value):
+            replaced.append((key, value))
         else:
-            appended.append((input_key, value))
+            appended.append((key, value))
 
     if appended:
         if lines and not lines[-1].endswith("\n"):
@@ -113,14 +88,14 @@ def generate_input_file() -> str:
         for key, value in appended:
             lines.append(f"{key} = {value}\n")
 
-    output_input_path.write_text("".join(lines), encoding="utf-8")
+    generated_path.write_text("".join(lines), encoding="utf-8")
 
-    # Write a small sidecar report for debugging.
-    report_path = output_input_path.with_suffix(output_input_path.suffix + ".report")
+    report_path = generated_path.with_suffix(generated_path.suffix + ".report")
+
     with report_path.open("w", encoding="utf-8") as report:
         report.write("reflectomITER iWrap input-generation report\n")
         report.write(f"template: {template_path}\n")
-        report.write(f"generated: {output_input_path}\n\n")
+        report.write(f"generated: {generated_path}\n\n")
 
         report.write("Replaced parameters:\n")
         for key, value in replaced:
@@ -130,69 +105,66 @@ def generate_input_file() -> str:
         for key, value in appended:
             report.write(f"  {key} = {value}\n")
 
-    return str(output_input_path)   
+    return str(generated_path)
 
-   
-def _command() -> list[str]:
-    executable = os.environ.get("REFLECTOMITER_EXECUTABLE", "../build/reflectomITER")
 
-    if _env_bool("REFLECTOMITER_GENERATE_INPUT"):
-        input_file = generate_input_file()
-    else:
-        input_file = os.environ.get("REFLECTOMITER_INPUT", "inputs.iwrap_reflectomITER")
+def build_command() -> list[str]:
+    input_file = generate_input_file()
 
-    launcher = os.environ.get("REFLECTOMITER_LAUNCHER", "")
-    launcher_args = os.environ.get("REFLECTOMITER_LAUNCHER_ARGS", "")
+    command = []
 
-    cmd: list[str] = []
+    if CONFIG["launcher"]:
+        command.append(CONFIG["launcher"])
 
-    if launcher:
-        cmd.append(launcher)
+    if CONFIG["launcher_arguments"]:
+        command.extend(shlex.split(CONFIG["launcher_arguments"]))
 
-    if launcher_args:
-        cmd.extend(shlex.split(launcher_args))
+    command.extend([
+        CONFIG["executable"],
+        input_file,
+    ])
 
-    cmd.extend([executable, input_file])
-    return cmd
+    return command
+
 
 def init_code():
-    _state["step"] = 0
-    _state["status"] = "initialized"
-    _state["last_command"] = ""
-    _state["last_return_code"] = None
+    STATE["step"] = 0
+    STATE["status"] = "initialized"
+    STATE["last_command"] = ""
+    STATE["last_return_code"] = None
     return 0, "reflectomITER Python actor initialized"
 
 
 def clean_up():
-    _state["status"] = "finalized"
+    STATE["status"] = "finalized"
     return 0, "reflectomITER Python actor finalized"
 
 
 def code_step():
-    workdir = Path(os.environ.get("REFLECTOMITER_WORKDIR", "."))
-    log_file = workdir / os.environ.get("REFLECTOMITER_IWRAP_LOG", "reflectomITER_iwrap_python.log")
-    dry_run = _env_bool("REFLECTOMITER_DRY_RUN")
+    workdir = Path(CONFIG["working_directory"])
+    log_file = workdir / CONFIG["log_file"]
 
-    cmd = _command()
-    printable = " ".join(shlex.quote(x) for x in cmd)
-    _state["last_command"] = printable
+    command = build_command()
+    printable_command = " ".join(shlex.quote(x) for x in command)
+
+    STATE["last_command"] = printable_command
 
     with log_file.open("a", encoding="utf-8") as log:
         log.write("\n[reflectomITER Python actor]\n")
         log.write(f"cwd     = {workdir}\n")
-        log.write(f"command = {printable}\n")
-        log.write(f"dry_run = {dry_run}\n")
+        log.write(f"command = {printable_command}\n")
+        log.write(f"dry_run = {CONFIG['dry_run']}\n")
 
-    if dry_run:
-        _state["step"] += 1
-        _state["status"] = "completed"
-        _state["last_return_code"] = 0
-        return 0, f"DRY RUN: cd {workdir} && {printable}"
+    if CONFIG["dry_run"]:
+        STATE["step"] += 1
+        STATE["status"] = "completed"
+        STATE["last_return_code"] = 0
+        return 0, f"DRY RUN: cd {workdir} && {printable_command}"
 
     try:
         with log_file.open("a", encoding="utf-8") as log:
             result = subprocess.run(
-                cmd,
+                command,
                 cwd=str(workdir),
                 stdout=log,
                 stderr=subprocess.STDOUT,
@@ -200,39 +172,39 @@ def code_step():
                 text=True,
             )
 
-        _state["last_return_code"] = result.returncode
+        STATE["last_return_code"] = result.returncode
 
         if result.returncode == 0:
-            _state["step"] += 1
-            _state["status"] = "completed"
+            STATE["step"] += 1
+            STATE["status"] = "completed"
             return 0, "reflectomITER completed successfully"
 
-        _state["status"] = "failed"
+        STATE["status"] = "failed"
         return result.returncode, f"reflectomITER failed with return code {result.returncode}"
 
     except FileNotFoundError as exc:
-        _state["status"] = "failed"
-        _state["last_return_code"] = 127
+        STATE["status"] = "failed"
+        STATE["last_return_code"] = 127
         return 127, f"launch failed: {exc}"
 
 
 def get_code_state():
     state = (
-        f"status={_state['status']};"
-        f"step={_state['step']};"
-        f"last_return_code={_state['last_return_code']};"
-        f"last_command={_state['last_command']}"
+        f"status={STATE['status']};"
+        f"step={STATE['step']};"
+        f"last_return_code={STATE['last_return_code']};"
+        f"last_command={STATE['last_command']}"
     )
     return state, 0, "state returned"
 
 
 def restore_code_state(state: str):
-    _state["status"] = state
+    STATE["status"] = state
     return 0, "state restored"
 
 
 def get_timestamp_cpp():
-    return float(_state["step"]), 0, "timestamp returned"
+    return float(STATE["step"]), 0, "timestamp returned"
 
 
 def main() -> int:
