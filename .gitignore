@@ -8,3 +8,4 @@ Backtrace.*
 iwrap/test_iwrap_adapter
 *.report
 *gen.*
+*.cpython*
