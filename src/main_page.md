@@ -428,6 +428,266 @@ cmake --build build
 
 If you are on an HPC system, load the required compiler, MPI, CUDA, AMReX, IMAS, and IMASH modules before configuring the project.
 
+### iWrap wrapper build and usage
+
+The `iwrap/` directory contains an actor-style wrapper scaffold for launching `reflectomITER` from an iWrap-oriented workflow.
+
+There are currently two wrapper paths:
+
+```text
+Python wrapper
+  recommended for local WSL/debugging
+  does not require the C++ MUSCLE3/libmuscle development stack
+
+C++ iWrap adapter
+  useful for testing iWrap-style compiled entry points
+  closer to the future compiled/library actor path
+```
+
+The production ITER target is expected to move toward a library actor, but the executable wrapper remains useful for validating input generation, source setup, IMAS configuration, and MPI launch behavior.
+
+#### Python wrapper prerequisites
+
+The Python wrapper only requires a working Python interpreter and a compiled `reflectomITER` executable.
+
+Optional but recommended:
+
+```bash
+python -m pip install --upgrade pip
+```
+
+The Python wrapper can be run without installing iWrap itself.
+
+#### Python wrapper smoke test
+
+From the repository root, build `reflectomITER` first using one of the build modes above. Then run:
+
+```bash
+cd iwrap
+
+python3 run_reflectomITER_actor.py
+```
+
+The run configuration is currently programmed in:
+
+```text
+iwrap/run_reflectomITER_actor.py
+```
+
+The reusable wrapper package lives in:
+
+```text
+iwrap/reflectomITER_actor/
+```
+
+The Python wrapper generates an input file from a fully populated template by replacing selected parameters such as:
+
+```text
+init.output_dir
+init.max_step
+init.final_time
+init.cfl
+init.number_of_outputs
+init.nsources
+source.N.frequency
+source.N.amplitude
+```
+
+The default generated input and report are written to paths configured in `run_reflectomITER_actor.py`.
+
+#### Python wrapper structure
+
+```text
+iwrap/
+├── run_reflectomITER_actor.py
+├── reflectomITER_python_actor.py
+├── reflectomITER_iwrap.yml
+├── test_iwrap_adapter.cpp
+└── reflectomITER_actor/
+    ├── __init__.py
+    ├── actor.py
+    ├── config.py
+    ├── input_generation.py
+    ├── launcher.py
+    └── sources.py
+```
+
+The file `run_reflectomITER_actor.py` is the high-level run script. It defines the base run parameters, source descriptions, generated input path, launcher, and executable path.
+
+The package `reflectomITER_actor/` contains reusable code for:
+
+```text
+input-file generation
+source-to-parameter conversion
+MPI/subprocess launch
+actor-style lifecycle functions
+```
+
+#### Line endings on WSL
+
+If a Python script fails with:
+
+```text
+/usr/bin/env: ‘python3\r’: No such file or directory
+```
+
+then the file has Windows CRLF line endings. Fix all Python files under `iwrap/` with:
+
+```bash
+cd iwrap
+find . -name "*.py" -print0 | xargs -0 sed -i 's/\r$//'
+chmod +x run_reflectomITER_actor.py reflectomITER_python_actor.py
+```
+
+To prevent this from recurring, keep a repository-level `.gitattributes` file with:
+
+```text
+*.py text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.cpp text eol=lf
+*.H text eol=lf
+*.h text eol=lf
+*.md text eol=lf
+```
+
+#### C++ iWrap adapter smoke test
+
+The C++ adapter exposes iWrap-style lifecycle functions from:
+
+```text
+include/io/IWrapActor.H
+src/io/IWrapActor.cpp
+```
+
+A simple local smoke-test executable can be built manually with:
+
+```bash
+g++ -std=c++17 -Iinclude \
+    src/io/IWrapActor.cpp \
+    iwrap/test_iwrap_adapter.cpp \
+    -o iwrap/test_iwrap_adapter
+```
+
+Then run:
+
+```bash
+cd iwrap
+
+REFLECTOMITER_LAUNCHER=mpirun \
+REFLECTOMITER_LAUNCHER_ARGS="-np 2" \
+REFLECTOMITER_EXECUTABLE=../build/reflectomITER \
+REFLECTOMITER_INPUT=../inputs/input_IMAS.txt \
+./test_iwrap_adapter
+```
+
+Adjust `REFLECTOMITER_EXECUTABLE` if the solver executable was built in another directory, for example:
+
+```bash
+REFLECTOMITER_EXECUTABLE=../build_iwrap/reflectomITER
+```
+
+#### Installing iWrap locally
+
+For local development, clone and install iWrap from source:
+
+```bash
+cd ~
+git clone https://github.com/iterorganization/iWrap.git
+cd iWrap
+
+python -m pip install --upgrade pip setuptools wheel setuptools_scm
+python -m pip install -v -e .
+```
+
+Check that the command is available:
+
+```bash
+iwrap --list-actor-types
+```
+
+If `pip install iwrap` does not work, install from the GitHub source tree as shown above.
+
+#### IMAS Access Layer visibility
+
+The compiled iWrap path may require IMAS Access Layer packages visible through `pkg-config`.
+
+For a local IMAS-Cpp installation, expose `al-cpp.pc` with:
+
+```bash
+export PKG_CONFIG_PATH="$HOME/IMAS-Cpp/installdir/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+```
+
+Verify:
+
+```bash
+pkg-config --modversion al-cpp
+pkg-config --cflags al-cpp
+pkg-config --libs al-cpp
+```
+
+On an ITER or HPC system, this should normally be handled by the official IMAS/iWrap environment setup or modules.
+
+#### C++ MUSCLE3/libmuscle requirements
+
+Generating a full compiled C++ iWrap/MUSCLE3 actor may additionally require:
+
+```bash
+pkg-config --modversion ymmsl
+pkg-config --modversion libmuscle_mpi
+```
+
+and the C++ header:
+
+```cpp
+#include <libmuscle/libmuscle.hpp>
+```
+
+If these are not available on WSL, use the Python wrapper path locally and build the full C++ actor on an ITER/Gateway environment where IMAS, iWrap, MUSCLE3, MPI, and compiler modules are provided.
+
+#### Generating a Python iWrap actor
+
+Once iWrap is installed, the Python actor scaffold can be generated with:
+
+```bash
+cd iwrap
+
+iwrap --actor-type python \
+  -a reflectomITER_actor \
+  -f reflectomITER_iwrap.yml
+```
+
+The exact actor type names available in a given iWrap installation can be checked with:
+
+```bash
+iwrap --list-actor-types
+```
+
+If local iWrap template generation fails because the Access Layer version is undefined, make sure the IMAS environment is sourced. On WSL, this may require patching local iWrap templates or using the Python wrapper directly without generating the actor.
+
+#### Current recommended workflow
+
+For local WSL development:
+
+```text
+1. Build reflectomITER normally.
+2. Run iwrap/run_reflectomITER_actor.py.
+3. Validate generated input files and reports.
+4. Validate MPI launch behavior.
+5. Commit wrapper/input-generation changes.
+```
+
+For ITER production integration:
+
+```text
+1. Use the executable wrapper to validate physics setup and input generation.
+2. Refactor reflectomITER into a callable core library.
+3. Expose the core through an iWrap library actor.
+4. Add IDS input/output handling at the actor boundary.
+```
+
+
 ---
 
 ## Running the code

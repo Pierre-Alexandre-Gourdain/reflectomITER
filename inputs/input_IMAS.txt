@@ -26,7 +26,7 @@ imas.pad_Z = 0.0
 imas.reference_frequency = -1.0
 
 # Optional explicit bounds
-imas.R_min = 6.0
+imas.R_min = 6.5
 imas.R_max = 8.6
 imas.Z_min = 0.0
 imas.Z_max = 1.0

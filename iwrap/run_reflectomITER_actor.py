@@ -38,7 +38,7 @@ SOURCES = [
         index=1,
         base_source=BASE_SOURCE,
         updates={
-            "frequency": "35e9",
+            "frequency": "36.5e9",
         },
     ),
     make_source(
@@ -52,7 +52,21 @@ SOURCES = [
         index=3,
         base_source=BASE_SOURCE,
         updates={
+            "frequency": "38.5e9",
+        },
+    ),
+    make_source(
+        index=4,
+        base_source=BASE_SOURCE,
+        updates={
             "frequency": "40e9",
+        },
+    ),
+    make_source(
+        index=5,
+        base_source=BASE_SOURCE,
+        updates={
+            "frequency": "41.5e9",
         },
     ),
 ]
