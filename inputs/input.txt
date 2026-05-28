@@ -7,7 +7,7 @@ init.normalize_units = 0
 
 init.cfl = 0.9
 init.final_time = 2.5
-init.max_step = -1
+init.max_step = 1000
 init.number_of_outputs = 10
 
 init.use_plasma = 1
