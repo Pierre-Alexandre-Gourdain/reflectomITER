@@ -6,3 +6,5 @@ Backtrace.*
 *.o
 *.a
 iwrap/test_iwrap_adapter
+*.report
+*gen.*

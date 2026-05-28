@@ -80,6 +80,32 @@ else()
 		find_package(AMReX REQUIRED)
 	endif()
 endif()
+
+# ------------------------------------------------------------
+# IMAS-CPP
+# ------------------------------------------------------------
+if (USE_IMAS)
+	option(USE_AL_CPP "Enable al-cpp support" ON)
+
+	if(USE_AL_CPP)
+		find_package(PkgConfig REQUIRED)
+
+		pkg_check_modules(AL_CPP QUIET IMPORTED_TARGET al-cpp)
+
+		if(NOT AL_CPP_FOUND)
+			message(STATUS "al-cpp not found in default pkg-config paths.")
+			message(STATUS "Falling back to $ENV{HOME}/IMAS-Cpp/installdir/lib/pkgconfig")
+
+			set(ENV{PKG_CONFIG_PATH}
+				"$ENV{PKG_CONFIG_PATH}:$ENV{HOME}/IMAS-Cpp/installdir/lib/pkgconfig"
+			)
+
+			pkg_check_modules(AL_CPP REQUIRED IMPORTED_TARGET al-cpp)
+		endif()
+
+		message(STATUS "Found al-cpp version ${AL_CPP_VERSION}")
+	endif()
+endif()
 # ------------------------------------------------------------
 # MPI
 # ------------------------------------------------------------
