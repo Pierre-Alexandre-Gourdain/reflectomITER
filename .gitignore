@@ -1,2 +1,8 @@
 /build
 /python/.ipynb_checkpoints
+*.log
+Backtrace.*
+/build_iwrap
+*.o
+*.a
+iwrap/test_iwrap_adapter

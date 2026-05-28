@@ -1,0 +1,21 @@
+code_description:
+  implementation:
+    subroutines:
+      init: init_code
+      main:
+        name: code_step
+        arguments: []
+      finalize: clean_up
+      get_timestamp: get_timestamp_cpp
+    programming_language: cpp
+    data_dictionary_compliant: 3.39.0
+    data_type: legacy
+    code_path: ./libreflectomITER_iwrap_adapter.a
+    include_path: ../include/io/IWrapActor.H
+
+  documentation: "Executable-launch iWrap adapter for reflectomITER"
+
+  settings:
+    compiler_cmd: g++
+    mpi_compiler_cmd: mpic++
+    compiler_flags: -pthread -std=c++17 -I../include

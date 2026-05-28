@@ -397,15 +397,17 @@ int main(int argc, char* argv[])
          * Copy the input file into the output directory for reproducibility.
          * This assumes argv[1] is the input file path used to launch the run.
          */
-        std::string str = std::string("cp \"")
-                        + argv[1]
-                        + "\" \""
-                        + cfg.output_dir
-                        + "/outputs/"
-                        + "\"";
-
-        int ret = ::system(str.c_str());
-        (void) ret;
+		 
+		if (argc > 1) {
+			std::string str = std::string("cp \"")
+							+ argv[1]
+							+ "\" \""
+							+ cfg.output_dir
+							+ "/outputs/"
+							+ "\"";
+			int ret = ::system(str.c_str());
+			(void) ret;
+		}
     }
 
     double stop_wall_time = ParallelDescriptor::second();

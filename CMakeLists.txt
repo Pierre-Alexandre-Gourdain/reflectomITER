@@ -51,20 +51,35 @@ endif()
 #   - from system/module paths
 find_package(AMReX QUIET)
 
-# If not found, fall back to the default local GPU installation
-if(NOT AMReX_FOUND)
-    message(STATUS "AMReX not found in default CMake paths.")
-    message(STATUS "Falling back to $ENV{HOME}/amrex_GPU/installdir/lib/cmake/AMReX")
+if(USE_CUDA)
+	# If not found, fall back to the default local GPU installation
+	if(NOT AMReX_FOUND)
+		message(STATUS "AMReX not found in default CMake paths.")
+		message(STATUS "Falling back to $ENV{HOME}/amrex_GPU/installdir/lib/cmake/AMReX")
 
-    set(AMReX_DIR
-        "$ENV{HOME}/amrex_GPU/installdir/lib/cmake/AMReX"
-        CACHE PATH "Path to AMReX CMake config"
-        FORCE
-    )
+		set(AMReX_DIR
+			"$ENV{HOME}/amrex_GPU/installdir/lib/cmake/AMReX"
+			CACHE PATH "Path to AMReX CMake config"
+			FORCE
+		)
 
-    find_package(AMReX REQUIRED)
+		find_package(AMReX REQUIRED)
+	endif()
+else()
+	# If not found, fall back to the default local CPU installation
+	if(NOT AMReX_FOUND)
+		message(STATUS "AMReX not found in default CMake paths.")
+		message(STATUS "Falling back to $ENV{HOME}/amrex_no_GPU/installdir/lib/cmake/AMReX")
+
+		set(AMReX_DIR
+			"$ENV{HOME}/amrex_no_GPU/installdir/lib/cmake/AMReX"
+			CACHE PATH "Path to AMReX CMake config"
+			FORCE
+		)
+
+		find_package(AMReX REQUIRED)
+	endif()
 endif()
-
 # ------------------------------------------------------------
 # MPI
 # ------------------------------------------------------------
@@ -141,6 +156,26 @@ if(USE_CUDA AND AMReX_CUDA)
     )
 endif()
 
+#-------------------------------------------------------------
+# iWrap handling
+#-------------------------------------------------------------
+option(BUILD_IWRAP_ADAPTER "Build reflectomITER iWrap adapter" OFF)
+
+if(BUILD_IWRAP_ADAPTER)
+    add_library(reflectomITER_iwrap_adapter STATIC
+        src/io/IWrapActor.cpp
+    )
+
+    target_include_directories(reflectomITER_iwrap_adapter PUBLIC include)
+
+    add_executable(reflectomITER_iwrap_test
+        iwrap/test_iwrap_adapter.cpp
+    )
+
+    target_link_libraries(reflectomITER_iwrap_test PRIVATE
+        reflectomITER_iwrap_adapter
+    )
+endif()
 # ------------------------------------------------------------
 # Linking
 # ------------------------------------------------------------
