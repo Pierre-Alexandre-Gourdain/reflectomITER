@@ -192,9 +192,9 @@ endif()
 #-------------------------------------------------------------
 # iWrap handling
 #-------------------------------------------------------------
-option(BUILD_IWRAP_ADAPTER "Build reflectomITER iWrap adapter" OFF)
+option(USE_IWRAP "Build reflectomITER iWrap adapter" OFF)
 
-if(BUILD_IWRAP_ADAPTER)
+if(USE_IWRAP)
     add_library(reflectomITER_iwrap_adapter STATIC
         src/io/IWrapActor.cpp
     )
@@ -237,11 +237,6 @@ install(TARGETS reflectomITER RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 #     to build do 
 #          cmake -S . -B build
 #          cmake --build build --target docs
-# ------------------------------------------------------------
-option(BUILD_DOCS "Build Doxygen documentation" ON)
-
-# ------------------------------------------------------------
-# Doxygen documentation
 # ------------------------------------------------------------
 option(BUILD_DOCS "Build Doxygen documentation" ON)
 
@@ -325,6 +320,7 @@ if(BUILD_DOCS)
     endif()
 
 endif()
+
 # ------------------------------------------------------------
 # Build summary
 # ------------------------------------------------------------
@@ -333,6 +329,7 @@ message(STATUS "Build type:          ${CMAKE_BUILD_TYPE}")
 message(STATUS "USE_CUDA:            ${USE_CUDA}")
 message(STATUS "AMReX CUDA enabled:  ${AMReX_CUDA}")
 message(STATUS "USE_IMAS:            ${USE_IMAS}")
+message(STATUS "USE_IWRAP:           ${USE_IWRAP}")
 message(STATUS "BUILD_DOCS:          ${BUILD_DOCS}")
 message(STATUS "C++ Compiler:        ${CMAKE_CXX_COMPILER}")
 message(STATUS "CUDA compiler:       ${CMAKE_CUDA_COMPILER}")

@@ -96,18 +96,18 @@ The main conceptual components are:
 
 The electromagnetic part of the code advances Maxwell's equations in the form
 
-$$
+\f[
 \mu_0\frac{\partial \mathbf{H}}{\partial t}
 =
 -\nabla \times \mathbf{E},
-$$
+\f]
 
-$$
+\f[
 \epsilon_0\frac{\partial \mathbf{E}}{\partial t}
 =
 \nabla \times \mathbf{H}
 ,
-$$
+\f]
 
 or with the normalized equivalents when `init.normalize_units = 1`.
 
@@ -139,15 +139,15 @@ is reached.  A value of `init.max_step = -1` disables the step-count limit.
 
 When current-density coupling is active, Ampere's law contains the current source term
 
-$$
+\f[
 \epsilon_0\frac{\partial \mathbf{E}}{\partial t}
 =
 \nabla \times \mathbf{H}-\mathbf{J},
-$$
+\f]
 together with charge conservation
-$$
+\f[
 \partial_t\rho+\nabla\cdot\mathbf J=0.
-$$
+\f]
 The current field `J` can receive contributions from:
 
 1. user-defined electromagnetic sources,
@@ -170,7 +170,7 @@ A `J` source is physically a current-density drive.  Direct `E` or `H` sources a
 
 The auxiliary differential equation (ADE) plasma model evolves an electron momentum-like response and accumulates a current into the electromagnetic solver.  Conceptually, the model follows a cold/warm electron-fluid response of the form
 
-$$
+\f[
 \frac{d\mathbf{p}_e}{dt}
 =
 q_e
@@ -179,22 +179,124 @@ q_e
 \mathbf{p}_e \times \mathbf{\Omega}_e
 -
 \nu \mathbf{p}_e,
-$$
+\f]
 
 where 
 
-$$
+\f[
 \mathbf {\Omega}_e=\frac{q_e\mathbf B}{m_e}
-$$
+\f]
 
 and a current contribution
 
-$$
+\f[
 \mathbf{J}_e
 =
 \frac{q_e n_e}{m_e} \mathbf{p}_e.
-$$
+\f]
 Note that the current density equation above is always true, even if all quantities vary in space and time. In the implementation, the ADE plasma object stores fields such as electron density `ne`, temperature `Te`, collision frequency, conductivity/activity mask, background magnetic field `B`, and electron momentum `p`.  The ADE model reads the electromagnetic field and deposits the resulting plasma current into the coupled `EHJSolver`.
+
+For reflectometry in ITER, the electron mass is dependent on the plasma temperature as
+\f[
+    m_e=m_{0e}\sqrt{1+5\frac{eT_e}{m_{0e}c^2}},
+\f]
+where \f[T_e(t)\f] is the local electron temperature in eV. Thus the exact time advance can be written as
+\f[
+    \textbf p_e(t)
+    =
+    e^{\mathbb A t}\textbf p_0
+    +
+    q_e
+    \left[
+        c_0\mathbb I
+        +
+        c_1[\boldsymbol\Omega_e]_\times
+        +
+        c_2[\boldsymbol\Omega_e]_\times^2
+    \right]
+    \textbf E .
+\f]
+
+The coefficients are
+\f[
+    \left\{
+    \begin{aligned}
+    c_0
+    &=
+    \frac{1-e^{-\nu t}}{\nu},
+    \\[0.5em]
+    c_1
+    &=
+    \frac{
+        \Omega_e
+        -
+        e^{-\nu t}
+        \left(
+            \nu\sin\theta+\Omega_e\cos\theta
+        \right)
+    }
+    {
+        \Omega_e
+        \left(
+            \nu^2+\Omega_e^2
+        \right)
+    },
+    \\[0.5em]
+    c_2
+    &=
+    \frac{1}{\Omega_e^2}
+    \left[
+        \frac{1-e^{-\nu t}}{\nu}
+        -
+        \frac{
+            \nu
+            +
+            e^{-\nu t}
+            \left(
+                -\nu\cos\theta+\Omega_e\sin\theta
+            \right)
+        }
+        {
+            \nu^2+\Omega_e^2
+        }
+    \right].
+    \end{aligned}
+    \right.
+\f]
+with 
+\f[
+    e^{\mathbb A t}
+    =
+    e^{-\nu t}
+    \left[
+        \mathbb I
+        +
+        \frac{\sin\theta}{\Omega_e}
+        [\boldsymbol\Omega_e]_\times
+        +
+        \frac{1-\cos\theta}{\Omega_e^2}
+        [\boldsymbol\Omega_e]_\times^2
+    \right],
+\f]
+where 
+\f[
+	\mathbb I=	
+		\begin{bmatrix}
+		1&0&0\\0&1&0\\0&0&1
+		\end{bmatrix},
+	\qquad
+    [\boldsymbol\Omega_e]_\times
+    =
+    \begin{bmatrix}
+        0&\Omega_{e_z}&-\Omega_{e_y}\\
+        -\Omega_{e_z}&0&\Omega_{e_x}\\
+        \Omega_{e_y}&-\Omega_{e_x}&0
+    \end{bmatrix},
+    \qquad
+    \Omega_e=\sqrt{\boldsymbol\Omega_e\cdot\boldsymbol\Omega_e},
+	\qquad
+    \theta=\Omega_e t.
+\f]
 
 The plasma model can be initialized in two ways:
 
@@ -239,9 +341,9 @@ init.use_e_cleaner = 1
 init.use_h_cleaner = 0
 ```
 By default, the magnetic field cleaner is turned off since the FDTD algorithm converses
-$$
+\f[
 \nabla\cdot\mathbf H=0
-$$
+\f]
 Electric field cleaning is useful when numerical current deposition, sources, or boundary treatments introduce error in the discrete Gauss-law constraint.  Magnetic cleaning can be enabled for tests where numerical magnetic divergence error needs active control.
 
 ---
@@ -730,7 +832,9 @@ For an IMAS-backed run:
 ```bash
 mpirun -np 4 ./build/reflectomITER input_IMAS.txt
 ```
+
 Note that the number of MPI tasks must match the number of GPU you have on the machine if you are running with GPUs.
+
 ---
 
 ## Input-file structure

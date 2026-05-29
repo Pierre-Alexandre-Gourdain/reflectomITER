@@ -9,9 +9,9 @@ from reflectomITER_actor.sources import make_source, sources_to_overrides
 
 BASE_RUN_OVERRIDES = {
     "init.max_step": "-1",
-    "init.final_time": "45e-9",
+    "init.final_time": "50e-9",
     "init.cfl": "0.45",
-    "init.number_of_outputs": "15",
+    "init.number_of_outputs": "50",
 }
 
 
@@ -27,9 +27,9 @@ BASE_SOURCE = {
     "width": ".05",
     "profile": "gaussian",
     "supergaussian_order": "4.0",
-    "t_on": "0.0",
-    "t_off": "42e-9",
-    "t_rise": ".1e-9",
+    "t_on": "1e-9",
+    "t_off": "11e-9",
+    "t_rise": ".3e-9",
 }
 
 

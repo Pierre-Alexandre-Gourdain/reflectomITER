@@ -9,3 +9,4 @@ iwrap/test_iwrap_adapter
 *.report
 *gen.*
 __pycache__
+*.png

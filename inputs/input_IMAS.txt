@@ -9,7 +9,11 @@ imas.load_core = 1
 imas.load_bfield = 1
 imas.load_edge_on_grid = 1
 imas.load_wall = 0
-imas.smooth_rho = 0.01
+
+# ============================================================
+# Edge density control
+# ============================================================
+imas.smooth_rho = 0.05
 imas.smooth_theta = 0.2
 
 # Optional merge controls, if present in Config
@@ -26,10 +30,10 @@ imas.pad_Z = 0.0
 imas.reference_frequency = -1.0
 
 # Optional explicit bounds
-imas.R_min = 6.5
+imas.R_min = 6.75
 imas.R_max = 8.6
-imas.Z_min = 0.0
-imas.Z_max = 1.0
+imas.Z_min = 0.2
+imas.Z_max = 0.8
 
 # ============================================================
 # Grid / solver
@@ -50,7 +54,7 @@ init.use_pml = 1
 # Time stepping
 # ============================================================
 init.cfl = 0.45
-init.final_time = 15e-9
+init.final_time = 45e-9
 init.max_step = -1
 init.number_of_outputs = 15
 
@@ -77,11 +81,11 @@ source.1.position = 8.5 0.0 0.5
 source.1.direction = 0.0 1.0 0.0
 source.1.shape = 0.05 1.0 1.0
 source.1.amplitude = 1e-3
-source.1.frequency = 3.7e9
+source.1.frequency = 40e9
 source.1.phase = 0.0
 source.1.width = .05
 source.1.profile = gaussian
 source.1.supergaussian_order = 4.0
 source.1.t_on = 0.0
-source.1.t_off = 33e-9
+source.1.t_off = 42e-9
 source.1.t_rise = .1e-9
