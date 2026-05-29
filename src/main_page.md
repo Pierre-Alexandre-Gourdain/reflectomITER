@@ -200,7 +200,7 @@ For reflectometry in ITER, the electron mass is dependent on the plasma temperat
 \f[
     m_e=m_{0e}\sqrt{1+5\frac{eT_e}{m_{0e}c^2}},
 \f]
-where \f[T_e(t)\f] is the local electron temperature in eV. Thus the exact time advance can be written as
+where \f$T_e(t)\f$ is the local electron temperature in eV. Thus the exact time advance can be written as
 \f[
     \textbf p_e(t)
     =
