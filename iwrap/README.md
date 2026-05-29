@@ -120,7 +120,7 @@ SOURCES = [
         base_source=BASE_SOURCE,
         updates={
             "position": "8.5 0.0 0.5",
-            "frequency": "3.5e9",
+            "frequency": "35e9",
             "amplitude": "1e-3",
         },
     ),
@@ -129,7 +129,7 @@ SOURCES = [
         base_source=BASE_SOURCE,
         updates={
             "position": "8.2 0.0 0.5",
-            "frequency": "3.7e9",
+            "frequency": "37e9",
             "amplitude": "5e-4",
         },
     ),
@@ -138,7 +138,7 @@ SOURCES = [
         base_source=BASE_SOURCE,
         updates={
             "position": "8.0 0.0 0.5",
-            "frequency": "4.0e9",
+            "frequency": "40e9",
             "amplitude": "5e-4",
         },
     ),
@@ -194,37 +194,6 @@ grep -E "init.nsources|source.[123].|init.output_dir|init.max_step|init.final_ti
   ../inputs/input_IMAS_gen.txt
 
 cat ../inputs/input_IMAS_gen.txt.report
-```
-
----
-
-## WSL line endings
-
-If a Python script fails with:
-
-```text
-/usr/bin/env: ‘python3\r’: No such file or directory
-```
-
-then the file has Windows CRLF line endings. Fix the Python files with:
-
-```bash
-cd iwrap
-find . -name "*.py" -print0 | xargs -0 sed -i 's/\r$//'
-chmod +x run_reflectomITER_actor.py reflectomITER_python_actor.py
-```
-
-To prevent this from recurring, keep a repository-level `.gitattributes` file with:
-
-```text
-*.py text eol=lf
-*.sh text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
-*.cpp text eol=lf
-*.H text eol=lf
-*.h text eol=lf
-*.md text eol=lf
 ```
 
 ---
