@@ -130,6 +130,19 @@ public:
      */
     void add_dimension();
 
+    /**
+     * @brief Advance the electron density.
+     *
+     * This method updates the electron density using the divergence
+     * of J.
+     *
+     * The caller is responsible for ensuring that `solver.J` has the desired
+     * updated value before this method is called. 
+     *
+     * @param dt Timestep size.
+     */
+	void update_ne(double dt);
+
 private:
     /**
      * @brief Electromagnetic solver coupled to this plasma response model.

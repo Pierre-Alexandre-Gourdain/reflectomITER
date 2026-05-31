@@ -466,6 +466,44 @@ void ADEPlasma::update(double dt)
 }
 #endif
 
+void ADEPlasma::update_ne(double dt)
+{
+    /*
+     * Density update from charge conservation:
+     *
+     *     d(q_e n_e)/dt + div J = 0
+     *
+     * hence
+     *
+     *     dn_e/dt = - div J / q_e.
+     */
+	 
+	dt /= Q_e;
+
+    const auto ds = geom.CellSizeArray();
+    const auto dxi = 1.0 / ds[X];
+    const auto dyi = 1.0 / ds[Y];
+    const auto dzi = 1.0 / ds[Z];
+	
+    for (MFIter mfi(BxA, dm, TilingIfNotGPU()); mfi.isValid(); ++mfi)
+    {
+        const Box& bx = mfi.tilebox();
+
+        auto J_arr = solver.J.array(mfi); // 3-component MultiFab
+        auto ne_arr = ne.array(mfi);
+
+        AMREX_PARALLEL_FOR_3D(bx, i, j, k, {
+            double divJ = (J_arr(i, j, k, X) - J_arr(i - 1, j, k, X)) * dxi
+                      + (J_arr(i, j, k, Y) - J_arr(i, j - 1, k, Y)) * dyi
+                      + (J_arr(i, j, k, Z) - J_arr(i, j, k - 1, Z)) * dzi;
+
+            ne_arr(i, j, k) -= dt * divJ ;
+        });
+    }
+	ne.FillBoundary(geom.periodicity());
+}	
+
+
 void ADEPlasma::remove_dimension()
 {
     /*

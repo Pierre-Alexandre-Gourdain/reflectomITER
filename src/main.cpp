@@ -326,6 +326,18 @@ int main(int argc, char* argv[])
             }
 
             /*
+             * Electron density update. This update must be done after the current
+             * density has been updated.
+             */
+			if (plasma) {
+                plasma->update_ne(dt);
+            }
+
+            if (pml_plasma) {
+                pml_plasma->update_ne(dt);
+            }
+			
+            /*
              * Electric update. The PML auxiliary field is advanced before the
              * PML electric update so the correction corresponds to the current
              * timestep.
@@ -399,7 +411,7 @@ int main(int argc, char* argv[])
          */
 		 
 		if (argc > 1) {
-			std::string str = std::string("cp \"")
+			std::string str = std::string("cp -f \"")
 							+ argv[1]
 							+ "\" \""
 							+ cfg.output_dir
