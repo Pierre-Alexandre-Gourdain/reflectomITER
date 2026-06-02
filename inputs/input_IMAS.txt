@@ -10,6 +10,9 @@ imas.load_bfield = 1
 imas.load_edge_on_grid = 1
 imas.load_wall = 0
 
+#imas.ne_scaling = 0.065
+#imas.B_scaling = 0.05
+
 # ============================================================
 # Edge density control
 # ============================================================
@@ -32,8 +35,8 @@ imas.reference_frequency = -1.0
 # Optional explicit bounds
 imas.R_min = 6.75
 imas.R_max = 8.6
-imas.Z_min = 0.2
-imas.Z_max = 0.8
+imas.Z_min = 0.0
+imas.Z_max = 1.0
 
 # ============================================================
 # Grid / solver
@@ -45,8 +48,8 @@ init.normalize_units = 1
 # ============================================================
 # PML Setup
 # ============================================================
-init.pml_thickness = 80
-init.pml_sigma = 1500
+init.pml_thickness = 40
+init.pml_sigma = 1000
 init.plasma_sigma = 200
 init.use_pml = 1
 
@@ -78,14 +81,14 @@ init.nsources = 1
 source.1.enabled = 1
 source.1.type = J
 source.1.position = 8.5 0.0 0.5
-source.1.direction = 0.0 1.0 0.0
+source.1.direction = 0.0 1.0 1.0
 source.1.shape = 0.05 1.0 1.0
 source.1.amplitude = 1e-3
-source.1.frequency = 40e9
+source.1.frequency = 38e9
 source.1.phase = 0.0
 source.1.width = .05
 source.1.profile = gaussian
 source.1.supergaussian_order = 4.0
 source.1.t_on = 0.0
-source.1.t_off = 42e-9
+source.1.t_off = 420e-9
 source.1.t_rise = .1e-9

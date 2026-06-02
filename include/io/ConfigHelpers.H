@@ -400,6 +400,10 @@ inline void print_config_summary(const Config& cfg,
 
     Print() << "dt_max / t_0           = " << dt_max << "\n";
     Print() << "dt / t_0               = " << dt << " (< 10 for PML)\n";
+	if (cfg.ne_scaling != 1.0)
+    Print() << "ne_scaling             = " << cfg.ne_scaling << "\n";
+	if (cfg.B_scaling != 1.0)
+    Print() << "B_scaling              = " << cfg.B_scaling << "\n";
     Print() << "================================\n\n";
 }
 

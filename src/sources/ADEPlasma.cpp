@@ -596,7 +596,9 @@ using namespace PlasmaCollisions;
 
 void FillPlasmaFromImas(const ImashSetup& setup,
                         ADEPlasma& plasma,
-                        const amrex::Geometry& geom)
+                        const amrex::Geometry& geom,
+						Real ne_scale = Real(1.0),
+						Real B_scale = Real(1.0))
 {
     using namespace amrex;
 
@@ -664,16 +666,16 @@ void FillPlasmaFromImas(const ImashSetup& setup,
                                                                y_phys,
                                                                z_phys);
 
-                    ne_arr(i,j,k,0) = s.ne * DENSITY_FACTOR;
+                    ne_arr(i,j,k,0) = s.ne * ne_scale;
                     Te_arr(i,j,k,0) = s.Te;
 
                     if (s.ne * s.Te) {
                         nu_arr(i,j,k,0) = nu_ei(s.ne, s.Te);
                     }
 
-                    B_arr(i,j,k,0) = s.Bx * B_FIELD_FACTOR;
-                    B_arr(i,j,k,1) = s.By * B_FIELD_FACTOR;
-                    B_arr(i,j,k,2) = s.Bz * B_FIELD_FACTOR;
+                    B_arr(i,j,k,0) = s.Bx * B_scale;
+                    B_arr(i,j,k,1) = s.By * B_scale;
+                    B_arr(i,j,k,2) = s.Bz * B_scale;
                 }
             }
         }

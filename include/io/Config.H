@@ -311,19 +311,33 @@ struct Config
     int merge_temperature = 0;
 
     /**
-     * @brief Radial smoothing parameter used when merging IMAS profiles.
+     * @brief Radial smoothing parameter for IMAS edge profiles.
      */
     double smooth_rho = 0.0;
 
     /**
-     * @brief Angular smoothing parameter used when merging IMAS profiles.
+     * @brief Angular smoothing parameter for IMAS edge profiles.
      */
     double smooth_theta = 0.0;
 
     /**
-     * @brief Toroidal wedge angle in degrees.
+     * @brief Multiplication factor of the equilibrium density. 
+	 *
+	 * Used to test with smaller o-mode frequencies
+     */
+    double ne_scaling = 1.0;
+
+    /**
+     * @brief Multiplication factor of the equilibrium magnetic field. 
+	 *
+	 * Used to test with smaller o-mode frequencies
+     */
+    double B_scaling = 1.0;
+
+    /**
+     * @brief Toroidal wedge angle in degrees.  
      *
-     * A nonpositive value selects a reduced-dimensional axisymmetric setup.
+     * The actual doman is not a wedge. A nonpositive value selects a reduced-dimensional axisymmetric setup.
      */
     double toroidal_phi_deg = 0.0;
 

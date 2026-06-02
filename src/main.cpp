@@ -166,11 +166,11 @@ int main(int argc, char* argv[])
              * IMAS plasma data are sampled onto the physical and PML grids.
              */
             if (cfg.use_imas && plasma) {
-                FillPlasmaFromImas(*imas_setup, *plasma, dom.geom);
+                FillPlasmaFromImas(*imas_setup, *plasma, dom.geom, cfg.ne_scaling, cfg.B_scaling);
             }
 
             if (cfg.use_imas && pml_plasma) {
-                FillPlasmaFromImas(*imas_setup, *pml_plasma, dom.geom);
+                FillPlasmaFromImas(*imas_setup, *pml_plasma, dom.geom, cfg.ne_scaling, cfg.B_scaling);
             }
 #endif
         }

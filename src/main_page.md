@@ -190,7 +190,7 @@ where
 and a current contribution
 
 \f[
-\mathbf{J}_e
+\mathbf{J}
 =
 \frac{q_e n_e}{m_e} \mathbf{p}_e.
 \f]

@@ -163,6 +163,8 @@ void Config::read()
         pp.query("R_max", R_max);
         pp.query("Z_min", Z_min);
         pp.query("Z_max", Z_max);
+        pp.query("ne_scaling", ne_scaling);
+        pp.query("B_scaling", B_scaling);
     }
 #endif
 

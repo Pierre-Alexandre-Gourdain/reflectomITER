@@ -35,13 +35,8 @@
 #define C_h 1
 #define Tau 10.
 
-#define DENSITY_FACTOR 1 //use for testing low cut-off frequencies, should be 1 for realistic simulations
-#define B_FIELD_FACTOR 1 //use for testing low cut-off frequencies, should be 1 for realistic simulations
-
 #define eps0i 1. // inverse
 #define mu0i 1.  // inverse
-
-#define CFL 0.9
 
 #define TINY 1e-25
 #define BIGGY 1e25

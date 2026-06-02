@@ -219,8 +219,10 @@ protected:
     amrex::Real sigma_max = 200.0;
 
 #ifdef USE_IMAS
-    friend void FillPlasmaFromImas(const ImashSetup& setup,
-                                   ADEPlasma& plasma,
-                                   const amrex::Geometry& geom);
+    friend void FillPlasmaFromImas(	const ImashSetup& setup,
+									ADEPlasma& plasma,
+									const amrex::Geometry& geom,
+									amrex::Real ne_scale,
+									amrex::Real B_scale);
 #endif
 };
